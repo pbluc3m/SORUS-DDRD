@@ -213,7 +213,7 @@ These parameter should be as a list
 # Choose one of the two options Real_data/manual
 if use_real_dataset:
     # Load real-world BS coordinates from .csv and filter by area
-    file_path = 'C:\\PhD\\Telefonica\\Gio\\try\\Test_Large_scale_2300_London.csv'
+    file_path = 'London.csv'
     data = pd.read_csv(file_path)
     latitudes = data.iloc[:, 62]
     longitudes = data.iloc[:, 63]
@@ -269,8 +269,8 @@ watch the video in through the link in below from NVIDIA Sionna RT:
     https://www.youtube.com/watch?v=7xHLDxUaQ7c
 
 '''
-file_path_xml = r"C:\\PhD\\Sionna\\Precoders_RT_Channel\\precoder_RT_Channel.xml"
-scene = load_scene(r"C:\\PhD\\Sionna\\Precoders_RT_Channel\\precoder_RT_Channel.xml")
+file_path_xml = r"London_City.xml"
+scene = load_scene(file_path_xml)
 
 # Configure antenna array for all transmitters and receivers (as needed)
 scene.tx_array = PlanarArray(num_rows=ant_row_elem, num_cols=ant_col_elem, vertical_spacing=ant_ver_spacing, horizontal_spacing=ant_hor_spacing, pattern="tr38901", polarization="V")
@@ -314,10 +314,10 @@ if Sionna_run_maps:
 if Sionna_run_maps == True:
     # Change the combined list to a tensor of all BSs coverage map among the first dim
     gain_dB = tf.concat(coverage_list_dB, axis=0)
-    with open("C:...\RIS_Simulator_JSAC\Coverage_map_simulation\2025_04_30_CoverageMaps_BSs_Loop_gain_dB_model_with_precoder_3_5GHz.pkl", 'wb') as f:
+    with open("CoverageMaps_BSs_Loop_gain_dB_model_with_precoder_3_5GHz.pkl", 'wb') as f:
         pickle.dump(gain_dB, f)
         
-    with open('...\RIS_Simulator_JSAC\Coverage_map_simulation\coverage_location_list_3_5.pkl', 'wb') as f:
+    with open('coverage_location_list_3_5.pkl', 'wb') as f:
         pickle.dump(coverage_location_list, f)  # Saving using pickle
         
 ##########################################
@@ -326,7 +326,7 @@ if Sionna_run_maps == True:
                 
 # Load the tensor
 if Sionna_run_maps == False:
-    with open('2025_04_30_CoverageMaps_BSs_Loop_gain_dB_model_with_precoder_3_5GHz.pkl', 'rb') as f:
+    with open('CoverageMaps_BSs_Loop_gain_dB_model_with_precoder_3_5GHz.pkl', 'rb') as f:
         gain_dB = pickle.load(f)
         
     with open('coverage_location_list_3_5.pkl', 'rb') as f:
@@ -349,17 +349,13 @@ if outdoor_UE_disc_phase1:
 
     #### We save it to avoid running this part of the code again (Time consuming)
     file_path = (
-        r"C:\PhD\Sionna\Coverage_improvement_RIS_Sionna\Simulations_with_precoders\\" +
-        r"RIS_Simulator_JSAC\outdoor_indoor_discrimination\\" +
         r"outdoor_loc_gain_3_5Ghz_with_precoder.pt")
     torch.save(outdoor_loc_gain, file_path)
 
 ###############################################
 
 ### Loading the outdoor UEs from phase1
-outdoor_loc_gain = torch.load(r"C:\PhD\Sionna\Coverage_improvement_RIS_Sionna\Simulations_with_precoders\\" +
-                              r"RIS_Simulator_JSAC\outdoor_indoor_discrimination\\" +
-                              r"outdoor_loc_gain_3_5Ghz_with_precoder.pt")
+outdoor_loc_gain = torch.load(r"outdoor_loc_gain_3_5Ghz_with_precoder.pt")
 
 ### Applying Phase2 for extracting outdoor UEs (Building-based)
 if outdoor_UE_disc_phase2:
@@ -371,8 +367,8 @@ if outdoor_UE_disc_phase2:
     )
     
     # Save the resulting tensors
-    outdoor_save_path = "C:\PhD\Sionna\Coverage_improvement_RIS_Sionna\Simulations_with_precoders\RIS_Simulator_JSAC\outdoor_indoor_discrimination\outdoor_users_tensor_3_5GHz_with_precoder.pt"
-    inside_outside_save_path = "C:\PhD\Sionna\Coverage_improvement_RIS_Sionna\Simulations_with_precoders\RIS_Simulator_JSAC\outdoor_indoor_discrimination\inside_outside_tensor_3_5GHz_test.pt"
+    outdoor_save_path = "outdoor_users_tensor_3_5GHz_with_precoder.pt"
+    inside_outside_save_path = "inside_outside_tensor_3_5GHz_test.pt"
     torch.save(outdoor_data_tensor, outdoor_save_path)
     torch.save(inside_outside_tensor, inside_outside_save_path)    
         
@@ -383,7 +379,7 @@ print('Calculating the received power ...')
 print('===================================')
 
 ### Loading the outdoor UEs from phase2
-outdoor_users = torch.load('outdoor_users_tensor_3_5GHz_with_precoder_heatmap.pt')
+outdoor_users = torch.load('outdoor_users_tensor_3_5GHz_with_precoder.pt')
 
 Coverage_channel_sionna_torch = outdoor_users
 Channel_large_RT_dB = Coverage_channel_sionna_torch
@@ -555,11 +551,11 @@ if Strongest_ray_RIS_location:
         ray_reflection, ray_diffraction, ray_scattering, UE_grid,
         num_ray_shooting, max_ray_bouncing)
 
-    final_results_df_centroids.to_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_cluster_T15_12_05_2025.csv', index=False)
+    final_results_df_centroids.to_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_cluster.csv', index=False)
 
 # If we simulated it before and saved the results, we can load it
 if Strongest_ray_RIS_location == False:
-    final_results_df_centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_cluster_T15_12_05_2025.csv')
+    final_results_df_centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_cluster.csv')
 
 
 ##########################################
@@ -590,7 +586,7 @@ if precoder_optimization_strongest_ray == False:
 ##########################################
 
 Centroid_data_with_updated_precoder['Precoder'] = Centroid_data_with_updated_precoder.apply(lambda row: row['Best_RIS_server'] if row['Best_RIS_power'] != -np.inf else row['Precoder'], axis=1)
-output_file_path = "Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T15_Updated_precoder_12_05_2025.csv"  # Specify the desired output file path
+output_file_path = "Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T15_Updated_precoder.csv"  # Specify the desired output file path
 Centroid_data_with_updated_precoder.to_csv(output_file_path, index=False)
 
 ###############################################################################
@@ -598,18 +594,18 @@ Centroid_data_with_updated_precoder.to_csv(output_file_path, index=False)
 # Computing RSRP for outage UEs with RIS
 ##########################################
 
-Best_RIS_RSS_Configuration_BIRCH_Centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T15_Updated_precoder_12_05_2025.csv')
+Best_RIS_RSS_Configuration_BIRCH_Centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T15_Updated_precoder.csv')
 Best_RIS_RSS_Configuration_BIRCH_Centroids['Point_A'] = Best_RIS_RSS_Configuration_BIRCH_Centroids['Point_A'].apply(post_processing.convert_bracket_to_parenthesis)
 
 if RSRP_RIS_UEs_Computation_Strongest_Ray:
     results_cluster_df_centroids = strongest_ray_alg.RSRP_RIS_UE(
         scene, Best_RIS_RSS_Configuration_BIRCH_Centroids, filtered_data,
         gob, chosen_poor_coverage_Dataframe_BIRCH, txPower_dBm,
-        'Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_12_05_2025.csv'
+        'Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15.csv'
     )
 
 if RSRP_RIS_UEs_Computation_Strongest_Ray == False:
-    results_cluster_df_centroids = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_12_05_2025.csv')
+    results_cluster_df_centroids = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder.csv')
 
 results_cluster_df_centroids['Final_RSS'] = results_cluster_df_centroids.apply(post_processing.choose_rss, axis=1)
 
@@ -650,11 +646,11 @@ if All_ray_RIS_location:
         gob,
         filtered_data,
         txPower_dBm,
-        'Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path_13_05_2025.csv'
+        'Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path.csv'
     )
 
 if All_ray_RIS_location == False:
-    final_results_df_centroids_all_paths = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path_13_05_2025.csv')
+    final_results_df_centroids_all_paths = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path.csv')
 
 final_results_df_centroids_all_paths = reflection_alg_data.update_rx_indice(final_results_df_centroids_all_paths, nearest_tile_indices)
 ###############################################################################
@@ -697,7 +693,7 @@ if precoder_optimization_all_ray == False:
 ##########################################
 
 Centroid_data_with_updated_precoder['Precoder'] = Centroid_data_with_updated_precoder.apply(lambda row: row['Best_RIS_server'] if row['Best_RIS_power'] != -np.inf else row['Precoder'], axis=1)
-output_file_path = "Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T15_Updated_precoder_all_path_14_05_2025.csv"  # Specify the desired output file path
+output_file_path = "Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T15_Updated_precoder_all_path.csv"  # Specify the desired output file path
 Centroid_data_with_updated_precoder.to_csv(output_file_path, index=False)
 
 ###############################################################################
@@ -706,18 +702,18 @@ Centroid_data_with_updated_precoder.to_csv(output_file_path, index=False)
 # Computing RSRP for outage UEs with RIS
 ##########################################
 
-Best_RIS_RSS_Configuration_BIRCH_Centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T15_Updated_precoder_all_path_14_05_2025.csv')
+Best_RIS_RSS_Configuration_BIRCH_Centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T15_Updated_precoder_all_path.csv')
 Best_RIS_RSS_Configuration_BIRCH_Centroids['Point_A'] = Best_RIS_RSS_Configuration_BIRCH_Centroids['Point_A'].apply(post_processing.convert_bracket_to_parenthesis)
 
 if RSRP_RIS_UEs_Computation_All_Ray:
     results_cluster_df_centroids = strongest_ray_alg.RSRP_RIS_UE(
         scene, Best_RIS_RSS_Configuration_BIRCH_Centroids, filtered_data,
         gob, chosen_poor_coverage_Dataframe_BIRCH, txPower_dBm,
-        'Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path_14_05_2025.csv'
+        'Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path.csv'
     )
 
 if RSRP_RIS_UEs_Computation_All_Ray == False:
-    results_cluster_df_centroids = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path_14_05_2025.csv')
+    results_cluster_df_centroids = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path.csv')
 
 results_cluster_df_centroids['Final_RSS'] = results_cluster_df_centroids.apply(post_processing.choose_rss, axis=1)
 
@@ -730,14 +726,14 @@ print('===================================')
 print('Preparing data for Re-clustering ...')
 print('===================================')
 
-results_cluster_df_centroids = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_12_05_2025.csv')
+results_cluster_df_centroids = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15.csv')
 results_cluster_df_centroids['Final_RSS'] = results_cluster_df_centroids.apply(post_processing.choose_rss, axis=1)
 
 
 df_recluster = reflection_alg_data.Data_Recluster(
     results_cluster_df_centroids,
     final_results_df_centroids_all_paths,
-    'Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path_14_05_2025.csv'
+    'Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path.csv'
 )
 ###############################################################################
 
@@ -858,11 +854,11 @@ if RE_Cluster_Strongest_ray_RIS_location:
         ray_reflection, ray_diffraction, ray_scattering, UE_grid,
         num_ray_shooting, max_ray_bouncing)
 
-    final_results_df_centroids.to_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_REcluster_T10_14_05_2025.csv', index=False)
+    final_results_df_centroids.to_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_REcluster_T10.csv', index=False)
 
 # If we simulated it before and saved the results, we can load it
 if RE_Cluster_Strongest_ray_RIS_location == False:
-    final_results_df_centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_REcluster_T10_14_05_2025.csv')
+    final_results_df_centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_REcluster_T10.csv')
 
 
 ##########################################
@@ -892,25 +888,25 @@ if precoder_optimization_strongest_ray_Re_Cluster == False:
 ##########################################
 
 Centroid_data_with_updated_precoder['Precoder'] = Centroid_data_with_updated_precoder.apply(lambda row: row['Best_RIS_server'] if row['Best_RIS_power'] != -np.inf else row['Precoder'], axis=1)
-output_file_path = "Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T10_Updated_precoder_15_05_2025.csv"  # Specify the desired output file path
+output_file_path = "Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T10_Updated_precoder.csv"  # Specify the desired output file path
 Centroid_data_with_updated_precoder.to_csv(output_file_path, index=False)
 ###############################################################################
 ##########################################
 # Computing RSRP for outage UEs with RIS
 ##########################################
 
-Best_RIS_RSS_Configuration_BIRCH_Centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T10_Updated_precoder_15_05_2025.csv')
+Best_RIS_RSS_Configuration_BIRCH_Centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T10_Updated_precoder.csv')
 Best_RIS_RSS_Configuration_BIRCH_Centroids['Point_A'] = Best_RIS_RSS_Configuration_BIRCH_Centroids['Point_A'].apply(post_processing.convert_bracket_to_parenthesis)
 
 if RSRP_RIS_UEs_Computation_Strongest_Ray_Re_Cluster:
     results_cluster_df_centroids = strongest_ray_alg.RSRP_RIS_UE(
         scene, Best_RIS_RSS_Configuration_BIRCH_Centroids, filtered_data,
         gob, chosen_poor_coverage_Dataframe_BIRCH, txPower_dBm,
-        'Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10_15_05_2025.csv'
+        'Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10.csv'
     )
 
 if RSRP_RIS_UEs_Computation_Strongest_Ray_Re_Cluster == False:
-    results_cluster_df_centroids = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10_15_05_2025.csv')
+    results_cluster_df_centroids = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10.csv')
 
 results_cluster_df_centroids['Final_RSS'] = results_cluster_df_centroids.apply(post_processing.choose_rss, axis=1)
 
@@ -950,11 +946,11 @@ if Re_Cluster_All_ray_RIS_location:
         gob,
         filtered_data,
         txPower_dBm,
-        'Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_T10_all_path_15_05_2025.csv'
+        'Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_T10_all_path.csv'
     )
 
 if Re_Cluster_All_ray_RIS_location == False:
-    final_results_df_centroids_all_paths = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_T10_all_path_15_05_2025.csv')
+    final_results_df_centroids_all_paths = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_precoder_T10_all_path.csv')
 
 final_results_df_centroids_all_paths = reflection_alg_data.update_rx_indice(final_results_df_centroids_all_paths, nearest_tile_indices)
 ###############################################################################
@@ -997,7 +993,7 @@ if precoder_optimization_all_ray_Re_cluster == False:
 ##########################################
 
 Centroid_data_with_updated_precoder['Precoder'] = Centroid_data_with_updated_precoder.apply(lambda row: row['Best_RIS_server'] if row['Best_RIS_power'] != -np.inf else row['Precoder'], axis=1)
-output_file_path = "Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T10_Updated_precoder_all_path_15_05_2025.csv"  # Specify the desired output file path
+output_file_path = "Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T10_Updated_precoder_all_path.csv"  # Specify the desired output file path
 Centroid_data_with_updated_precoder.to_csv(output_file_path, index=False)
 
 ###############################################################################
@@ -1006,18 +1002,18 @@ Centroid_data_with_updated_precoder.to_csv(output_file_path, index=False)
 # Computing RSRP for outage UEs with RIS
 ##########################################
 
-Best_RIS_RSS_Configuration_BIRCH_Centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T10_Updated_precoder_all_path_15_05_2025.csv')
+Best_RIS_RSS_Configuration_BIRCH_Centroids = pd.read_csv('Coverage_centroids_RIS260_cluster_BRICH_3_5GHz_T10_Updated_precoder_all_path.csv')
 Best_RIS_RSS_Configuration_BIRCH_Centroids['Point_A'] = Best_RIS_RSS_Configuration_BIRCH_Centroids['Point_A'].apply(post_processing.convert_bracket_to_parenthesis)
 
 if RSRP_RIS_UEs_Computation_All_Ray_Re_Cluster:
     results_cluster_df_centroids = strongest_ray_alg.RSRP_RIS_UE(
         scene, Best_RIS_RSS_Configuration_BIRCH_Centroids, filtered_data,
         gob, chosen_poor_coverage_Dataframe_BIRCH, txPower_dBm,
-        'Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10_all_path_15_05_2025.csv'
+        'Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10_all_path.csv'
     )
 
 if RSRP_RIS_UEs_Computation_All_Ray_Re_Cluster == False:
-    results_cluster_df_centroids = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10_all_path_15_05_2025.csv')
+    results_cluster_df_centroids = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10_all_path.csv')
 
 results_cluster_df_centroids['Final_RSS'] = results_cluster_df_centroids.apply(post_processing.choose_rss, axis=1)
 
@@ -1031,10 +1027,10 @@ print('Final Data Prepration ...')
 print('===================================')
 
 
-Coverage_user_phase1             = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_12_05_2025.csv')
-Coverage_user_phase1_all_path    = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path_14_05_2025.csv')
-Coverage_user_phase2             = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10_15_05_2025.csv')
-Coverage_user_phase2_all_path    = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10_all_path_15_05_2025.csv')
+Coverage_user_phase1             = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15.csv')
+Coverage_user_phase1_all_path    = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T15_all_path.csv')
+Coverage_user_phase2             = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10.csv')
+Coverage_user_phase2_all_path    = pd.read_csv('Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_T10_all_path.csv')
 
 Final_data, unique_RIS_list, Worst_UEs_Data = post_processing.Fina_Dataframe(
     Coverage_user_phase1, Coverage_user_phase1_all_path,
@@ -1053,7 +1049,7 @@ if LoS_link_UE_RIS:
     Filtered_LoS_Results = RIS_Re_Assocciation.LoS_UE_RIS(
         Worst_UEs_Data,
         unique_RIS_list,
-        r"C:\PhD\Sionna\Precoders_RT_Channel\meshes")
+        r"meshes")
 
     # Define the file path for saving
     csv_filename = "Filtered_LoS_Results.csv"
@@ -1140,7 +1136,7 @@ if re_assocciation_RSRP_RIS:
         scene=scene, LoS_UE_RIS=final_los_ue_ris, filtered_data=filtered_data,
         latitudes=latitudes, longitudes=longitudes, BS_height=BS_height,
         bearing_deg=bearing_deg, downtilt=downtilt, gob=gob,
-        output_file="Coverage_users_RIS750_cluster_BRICH_10GHz_precoder_LoS_06_05_2025.csv"
+        output_file="Coverage_users_RIS750_cluster_BRICH_10GHz_precoder_LoS.csv"
     )
 
 ###############################################################################
@@ -1150,8 +1146,8 @@ if re_assocciation_RSRP_RIS:
 
 Final_data = RIS_Re_Assocciation.RIS_UE_RSRP_Data(
     final_data=Final_data,
-    coverage_users_los_csv="Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_LoS_16_05_2025.csv",
-    output_file="Final_Coverage_results_RSRP_RIS260_07_05_2025.csv")
+    coverage_users_los_csv="Coverage_users_RIS260_cluster_BRICH_3_5GHz_precoder_LoS.csv",
+    output_file="Final_Coverage_results_RSRP_RIS260.csv")
 
 ###############################################################################
 ##########################################
