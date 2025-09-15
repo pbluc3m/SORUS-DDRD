@@ -104,3 +104,12 @@ The key functions of the simulation pipeline are in `main.py`. Due to the high c
 
      https://github.com/Telefonica-Scientific-Research/DDRD/blob/76ba71a3d9d255e9b32aa621922832f94bbc0e91/main.py#L128-L142
 
+
+## Acknowledgements
+
+This work is partly supported by the Spanish Ministry of Economic Affairs and Digital Transformation and the European Union-NextGenerationEU through the [UNICO 5G I+D SORUS project](https://unica6g.it.uc3m.es/en/6g-sorus/).
+
+![PRTR](prtr.png)
+
+
+
